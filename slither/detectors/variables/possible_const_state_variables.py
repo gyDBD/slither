@@ -25,56 +25,66 @@ class ConstCandidateStateVars(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant'
 
-    @staticmethod
-    def lvalues_of_operations_with_lvalue(contract):
-        ret = []
-        for f in contract.all_functions_called + contract.modifiers:
-            for n in f.nodes:
-                for ir in n.irs:
-                    if isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
-                        ret.append(ir.lvalue)
-        return ret
+    def lvalues_of_operations_with_lvalue(self):
+        """
+        Obtains all state variables on the left-hand side of any operations in functions or modifiers.
+        :return: Returns a set of state variables which are on the left-hand side of any operations in functions or
+        modifiers.
+        """
+        # Define our results set.
+        results = set()
+
+        # Loop for each function node explicitly defined in each contract, and look at all IR to find operations with
+        # left hand values that we can extract from, and the left hand side to our set if it is a state variable.
+        for contract in self.contracts:
+            for function in contract.functions_and_modifiers_not_inherited:
+                for node in function.nodes:
+                    for ir in node.irs:
+                        if isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
+                            results.add(ir.lvalue)
+        return results
 
     @staticmethod
     def non_const_state_variables(contract):
+        """
+        Obtains all non-constant state variables explicitly defined in a given contract which are assigned a literal to.
+        :param contract: The contract to obtain state variables from
+        :return: Returns a list of state variables which are non-constant, accessible from this contract.
+        """
         return [variable for variable in contract.state_variables
-                if not variable.is_constant and type(variable.expression) == Literal]
-
-    def detect_const_candidates(self, contract):
-        const_candidates = []
-        non_const_state_vars = self.non_const_state_variables(contract)
-        lvalues_of_operations = self.lvalues_of_operations_with_lvalue(contract)
-        for non_const in non_const_state_vars:
-            if non_const not in lvalues_of_operations \
-                    and non_const not in const_candidates \
-                    and isinstance(non_const.type, ElementaryType):
-                const_candidates.append(non_const)
-
-        return const_candidates
+                if variable.contract == contract and not variable.is_constant and type(variable.expression) == Literal]
 
     def detect(self):
         """ Detect state variables that could be const
         """
         results = []
         all_info = ''
-        for c in self.slither.contracts_derived:
-            const_candidates = self.detect_const_candidates(c)
-            if const_candidates:
-                variables_by_contract = defaultdict(list)
 
-                for state_var in const_candidates:
-                    variables_by_contract[state_var.contract.name].append(state_var)
+        # Obtain all state variables that are assigned to in a function/modifier.
+        all_assigned = self.lvalues_of_operations_with_lvalue()
 
-                for contract, variables in variables_by_contract.items():
-                    info = ''
-                    for v in variables:
-                        info += "{}.{} should be constant ({})\n".format(contract,
-                                                                         v.name,
-                                                                         v.source_mapping_str)
-                    all_info += info
-                    json = self.generate_json_result(info)
-                    self.add_variables_to_json(variables, json)
-                    results.append(json)
+        # Loop through each contract and find state variables which were not assigned to.
+        for contract in self.contracts:
+
+            # Obtain all non-constant state variables
+            candidate_variables = self.non_const_state_variables(contract)
+
+            # Filter the candidates to those that are not assigned to, and are value-types.
+            candidate_variables = [candidate for candidate in candidate_variables
+                                   if candidate not in all_assigned
+                                   and isinstance(candidate.type, ElementaryType)]
+
+            # If we have any candidates remaining, we output them as recommendations to be made constant.
+            if candidate_variables:
+                info = ''
+                for candidate in candidate_variables:
+                    info += "{}.{} should be constant ({})\n".format(candidate.contract.name,
+                                                                     candidate.name,
+                                                                     candidate.source_mapping_str)
+                all_info += info
+                json = self.generate_json_result(info)
+                self.add_variables_to_json(candidate_variables, json)
+                results.append(json)
 
         if all_info != '':
             self.log(all_info)
