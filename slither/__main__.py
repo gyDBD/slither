@@ -18,7 +18,11 @@ from slither.slither import Slither
 from slither.utils.colors import red
 from slither.utils.command_line import output_to_markdown, output_detectors, output_printers, output_detectors_json
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename='/Users/yueguo/github/slither/slither/test.log',
+                    filemode='w')
 logger = logging.getLogger("Slither")
 
 
@@ -116,6 +120,8 @@ def get_detectors_and_printers():
     from slither.detectors.attributes.locked_ether import LockedEther
     from slither.detectors.functions.arbitrary_send import ArbitrarySend
     from slither.detectors.functions.suicidal import Suicidal
+    from slither.detectors.functions.init_function_auth_check import InitFunctionAuth
+    from slither.detectors.functions.init_function_state_check import InitFunctionState
     from slither.detectors.functions.complex_function import ComplexFunction
     from slither.detectors.reentrancy.reentrancy_benign import ReentrancyBenign
     from slither.detectors.reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
@@ -148,6 +154,8 @@ def get_detectors_and_printers():
                  LockedEther,
                  ArbitrarySend,
                  Suicidal,
+                 InitFunctionAuth,
+                 InitFunctionState,
                  UnusedStateVars,
                  TxOrigin,
                  Assembly,
