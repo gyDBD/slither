@@ -65,31 +65,7 @@ test_slither(){
 }
 
 
-test_slither tests/uninitialized.sol "uninitialized-state"
-test_slither tests/backdoor.sol "backdoor"
-test_slither tests/backdoor.sol "suicidal"
-test_slither tests/pragma.0.4.24.sol "pragma"
-test_slither tests/old_solc.sol.json "solc-version"
-test_slither tests/reentrancy.sol "reentrancy-eth"
-test_slither tests/uninitialized_storage_pointer.sol "uninitialized-storage"
-test_slither tests/tx_origin.sol "tx-origin"
-test_slither tests/unused_state.sol "unused-state"
-test_slither tests/locked_ether.sol "locked-ether"
-test_slither tests/arbitrary_send.sol "arbitrary-send"
-test_slither tests/inline_assembly_contract.sol "assembly"
-test_slither tests/inline_assembly_library.sol "assembly"
-test_slither tests/low_level_calls.sol "low-level-calls"
-test_slither tests/const_state_variables.sol "constable-states"
-test_slither tests/external_function.sol "external-function"
-test_slither tests/external_function_2.sol "external-function"
-test_slither tests/naming_convention.sol "naming-convention"
-#test_slither tests/complex_func.sol "complex-function"
-test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
-test_slither tests/constant.sol "constant-function"
-test_slither tests/unused_return.sol "unused-return"
-test_slither tests/shadowing_abstract.sol "shadowing-abstract"
-test_slither tests/shadowing_state_variable.sol "shadowing-state"
-test_slither tests/timestamp.sol "timestamp"
-test_slither tests/multiple_calls_in_loop.sol "calls-loop"
+
+test_slither tests/init_22.sol "init-auth"
 
 

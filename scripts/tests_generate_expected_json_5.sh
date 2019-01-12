@@ -10,11 +10,11 @@ generate_expected_json(){
     output_filename="$(basename $1 .sol).$2.json"
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/../tests/expected_json/$output_filename" --solc solc-0.5.1
+    slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/../tests/expected_json/$output_filename" --solc solc
 
 }
 
-#generate_expected_json tests/uninitialized-0.5.1.sol "uninitialized-state"
+generate_expected_json tests/reentrancy.sol "uninitialized-state"
 #generate_expected_json tests/backdoor.sol "backdoor"
 #generate_expected_json tests/backdoor.sol "suicidal"
 #generate_expected_json tests/pragma.0.4.24.sol "pragma"
@@ -28,3 +28,4 @@ generate_expected_json(){
 #generate_expected_json tests/inline_assembly_contract-0.5.1.sol "assembly"
 #generate_expected_json tests/inline_assembly_library-0.5.1.sol "assembly"
 #generate_expected_json tests/constant-0.5.1.sol "constant-function"
+generate_expected_json tests/arbitrary_send-0.5.1.sol "init-auth"
