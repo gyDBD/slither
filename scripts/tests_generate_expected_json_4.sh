@@ -15,4 +15,4 @@ generate_expected_json(){
 }
 
 
-generate_expected_json tests/init_22.sol "init-auth"
+generate_expected_json tests/init_22.sol "reentrancy-eth"
