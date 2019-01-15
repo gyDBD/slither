@@ -68,7 +68,7 @@ test_slither(){
 test_slither tests/arbitrary_send-0.5.1.sol "init-auth"
 test_slither tests/arbitrary_send.sol "init-auth"
 test_slither tests/init_success.sol "init-auth"
-test_slither tests/init_fail.sol "init-auth"
+test_slither tests/0x0d941d0379Bc5Cb2A610a9b0f02Ec6fA4a387dC8.sol "init-auth"
 
 
 ### Test scripts
