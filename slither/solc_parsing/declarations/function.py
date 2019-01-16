@@ -835,14 +835,17 @@ class FunctionSolc(Function):
             for node in self.nodes:
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
-                    st = SplitTernaryExpression(node.expression)
-                    condition = st.condition
-                    #assert condition
-                    true_expr = st.true_expression
-                    false_expr = st.false_expression
-                    self.split_ternary_node(node, condition, true_expr, false_expr)
-                    ternary_found = True
-                    break
+                    try:
+                        st = SplitTernaryExpression(node.expression)
+                        condition = st.condition
+                        assert condition
+                        true_expr = st.true_expression
+                        false_expr = st.false_expression
+                        self.split_ternary_node(node, condition, true_expr, false_expr)
+                        ternary_found = True
+                        break
+                    except AssertionError as error:
+                        pass
         self._remove_alone_endif()
 
     def get_last_ssa_state_variables_instances(self):
