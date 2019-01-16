@@ -284,7 +284,8 @@ def main_impl(all_detector_classes, all_printer_classes):
         exit(results)
 
     except Exception:
-        pass
+        logging.error('Error in %s' % args.filename)
+        logging.error(traceback.format_exc())
 
 
 

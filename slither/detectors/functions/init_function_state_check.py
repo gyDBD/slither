@@ -42,7 +42,7 @@ class InitFunctionState(AbstractDetector):
             # Check if a function has 'initialize' in its lower case name and not check the exist a state variable that is properly set during initialization and the variable is checked before the entrance.
 
             for f in contract.functions:
-                if 'initialize' in f.name.lower() and self.detect_init_func(f):
+                if 'initialize' in f.name.lower() and f.is_implemented and self.detect_init_func(f):
                     # Info to be printed
                     info = 'Initialize function without checking state variables found in {}.{} ({})\n'
                     info = info.format(contract.name, f.name, f.source_mapping_str)
