@@ -587,4 +587,4 @@ def parse_expression(expression, caller_context):
         return call
 
     logger.error('Expression not parsed %s'%name)
-    exit(-1)
+    pass
