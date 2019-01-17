@@ -252,7 +252,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         if os.path.isfile(filename):
             try:
                 (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
-            except Exception:
+            except BaseException:
                 pass
 
         elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
@@ -273,7 +273,7 @@ def main_impl(all_detector_classes, all_printer_classes):
                         (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
                         number_contracts += number_contracts_tmp
                         results += results_tmp
-                    except Exception:
+                    except BaseException:
                         logger.error("Something went wrong" + filename)
                     continue
 
