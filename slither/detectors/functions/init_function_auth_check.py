@@ -22,6 +22,8 @@ class InitFunctionAuth(AbstractDetector):
         for contract in self.contracts:
             # Check if a function has 'initialize' in its lower case name and not check the caller(msg.sender)
             for f in contract.functions:
+                if f.is_constructor or f.visibility not in ["public", "external"]:
+                    continue
                 if 'initialize' in f.name.lower() and f.is_implemented and not f.is_protected():
                     # Info to be printed
                     info = 'Initialize function without checking the caller found in {}.{} ({})\n'
