@@ -41,11 +41,13 @@ class FunctionAuth(AbstractDetector):
         TODO: need to check requirement statements not just conditional
         """
 
+        # state_variables_written = [v.name for v in func.all_state_variables_written()]
+        # #require_state_variables_read = [v.name for v in func.is_reading_in_require()]
+        # conditional_vars = func.all_conditional_solidity_variables_read(include_loop=False)
+        # args_vars = func.all_solidity_variables_used_as_args()
         state_variables_written = [v.name for v in func.all_state_variables_written()]
-        #require_state_variables_read = [v.name for v in func.is_reading_in_require()]
-        conditional_vars = func.all_conditional_solidity_variables_read(include_loop=False)
-        args_vars = func.all_solidity_variables_used_as_args()
-        intersection = list(set(state_variables_written)&set(conditional_vars + args_vars))
+        conditional_state_variables_read = [v.name for v in func.all_conditional_state_variables_read()]
+        intersection = list(set(state_variables_written)&set(conditional_state_variables_read))
         if intersection:
             assignment = func.get_assginment()
             for assign in assignment:
