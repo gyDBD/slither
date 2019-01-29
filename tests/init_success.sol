@@ -35,7 +35,7 @@ contract C{
   function i_am_a_Initialize() public {
     onlyAdmin(true);
     turn();
-    aa = true;
+    aa = tx.origin;
   }
 
 }
