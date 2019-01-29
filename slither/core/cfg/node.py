@@ -421,7 +421,7 @@ class Node(SourceMapping, ChildFunction):
         Returns:
             bool: True if the node is a assignment node contains "="
         """
-        if self.type == AssignmentOperationType.ASSIGN:
+        if self.type == NodeType.EXPRESSION:
             if "=" in self.expression.arguments:
                 return True
 
