@@ -11,6 +11,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
+from slither.core.expressions.assignment_operation import AssignmentOperationType
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (Balance, HighLevelCall, Index,
                                         InternalCall, Length, LibraryCall,
@@ -420,7 +421,7 @@ class Node(SourceMapping, ChildFunction):
             bool: True if the node is a assignment node contains "="
         """
         if self.type == NodeType.EXPRESSION:
-            if "=" in self.expression.arguments:
+            if self.expression.type() == AssignmentOperationType.ASSIGN:
                 return True
 
         return False
@@ -432,7 +433,7 @@ class Node(SourceMapping, ChildFunction):
             bool: True if the node is a assignment node contains "="
         """
         if self.is_assignment():
-            return self.expression
+            return self.expression.expression_left() + "=" + self.expression.expression_right()
 
         return None
 

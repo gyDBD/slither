@@ -564,7 +564,6 @@ class Function(ChildContract, SourceMapping):
         result = []
         for n in self.nodes:
             if n.is_assignment():
-                logger.info(n.get_assignment())
                 result = result + n.get_assignment()
 
         return result
