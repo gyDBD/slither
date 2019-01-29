@@ -420,7 +420,7 @@ class Node(SourceMapping, ChildFunction):
             bool: True if the node is a assignment node contains "="
         """
         if self.type == NodeType.EXPRESSION:
-            for c in self.calls_as_expression():
+            for c in self.expression_calls:
                 if "=" in c.name:
                     return True
 
