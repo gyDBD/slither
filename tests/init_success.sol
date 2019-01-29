@@ -33,7 +33,6 @@ contract C{
   }
 
   function i_am_a_Initialize(bool parameter) public {
-    onlyAdmin(true);
     turn();
     aa = parameter;
   }
