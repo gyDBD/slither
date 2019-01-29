@@ -15,7 +15,5 @@ generate_expected_json(){
 }
 
 
-generate_expected_json tests/arbitrary_send-0.5.1.sol "init-auth"
-generate_expected_json tests/arbitrary_send.sol "init-auth"
-generate_expected_json tests/init_success.sol "init-auth"
-generate_expected_json tests/init_fail.sol "init-auth"
+
+generate_expected_json tests/init_success.sol "function-auth"
