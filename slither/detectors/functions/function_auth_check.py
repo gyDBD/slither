@@ -24,11 +24,11 @@ class FunctionAuth(AbstractDetector):
         Returns:
             (bool): True if the function is visible
         """
-        functions_reachable = contract.all_functions_called()
+        # functions_reachable = contract.all_functions_called()
         if func.visibility in ["public", "external"]:
             return True
-        elif func.visibility in ["private", "internal"] and func in functions_reachable:
-            return True
+        # elif func.visibility in ["private", "internal"] and func in functions_reachable:
+        #     return True
         return False
 
     @staticmethod
