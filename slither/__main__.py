@@ -252,10 +252,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         globbed_filenames = glob.glob(filename, recursive=True)
 
         if os.path.isfile(filename):
-            try:
-                (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
-            except BaseException:
-                logger.error("Something went wrong" + filename)
+            (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
         elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
             (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
