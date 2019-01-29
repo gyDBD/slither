@@ -560,6 +560,15 @@ class Function(ChildContract, SourceMapping):
             return [item for sublist in ret for item in sublist]
         return self._explore_functions(lambda x: _explore_func(x, _solidity_variable_in_node))
 
+    def get_assginment(self):
+        result = []
+        for n in self.nodes:
+            if n.is_assignment():
+                result = result + n.get_assignment()
+
+        return result
+
+
     def all_solidity_variables_used_as_args(self):
         """
             Return the Soldiity variables directly used in a call
@@ -610,6 +619,18 @@ class Function(ChildContract, SourceMapping):
             bool: True if the variable is read
         """
         variables_read = [n.variables_read for n in self.nodes if n.contains_require_or_assert()]
+        variables_read = [item for sublist in variables_read for item in sublist]
+        return variable in variables_read
+
+    def is_reading_in_require(self, variable):
+        """
+            Check if the function reads the variable in an require
+        Args:
+            variable (Variable):
+        Returns:
+            bool: True if the variable is read
+        """
+        variables_read = [n.variables_read for n in self.nodes if n.contains_require()]
         variables_read = [item for sublist in variables_read for item in sublist]
         return variable in variables_read
 

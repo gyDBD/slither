@@ -122,6 +122,7 @@ def get_detectors_and_printers():
     from slither.detectors.functions.suicidal import Suicidal
     from slither.detectors.functions.init_function_auth_check import InitFunctionAuth
     from slither.detectors.functions.init_function_state_check import InitFunctionState
+    from slither.detectors.functions.function_auth_check import FunctionAuth
     from slither.detectors.functions.complex_function import ComplexFunction
     from slither.detectors.reentrancy.reentrancy_benign import ReentrancyBenign
     from slither.detectors.reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
@@ -156,6 +157,7 @@ def get_detectors_and_printers():
                  Suicidal,
                  InitFunctionAuth,
                  InitFunctionState,
+                 FunctionAuth,
                  UnusedStateVars,
                  TxOrigin,
                  Assembly,

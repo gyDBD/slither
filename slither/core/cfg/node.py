@@ -386,6 +386,14 @@ class Node(SourceMapping, ChildFunction):
         """
         return any(c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'] for c in self.internal_calls)
 
+    def contains_require(self):
+        """
+            Check if the node has a require or assert call
+        Returns:
+            bool: True if the node has a require or assert call
+        """
+        return any(c.name in ['require(bool)', 'require(bool,string)'] for c in self.internal_calls)
+
     def contains_if(self, include_loop=True):
         """
             Check if the node is a IF node
@@ -404,6 +412,28 @@ class Node(SourceMapping, ChildFunction):
             bool: True if the node is a conditional node
         """
         return self.contains_if(include_loop) or self.contains_require_or_assert()
+
+    def is_assignment(self):
+        """
+            Check if the node is a assignment node
+        Returns:
+            bool: True if the node is a assignment node contains "="
+        """
+        if self.type == NodeType.EXPRESSION and "=" in self.expression:
+            return True
+
+        return False
+
+    def get_assignment(self):
+        """
+            Check if the node is a assignment node
+        Returns:
+            bool: True if the node is a assignment node contains "="
+        """
+        if self.is_assignment():
+            return self.expression
+
+        return None
 
     def add_father(self, father):
         """ Add a father node
