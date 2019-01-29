@@ -32,10 +32,10 @@ contract C{
     require(!aa);
   }
 
-  function i_am_a_Initialize() public {
+  function i_am_a_Initialize(bool parameter) public {
     onlyAdmin(true);
     turn();
-    aa = tx.origin;
+    aa = parameter;
   }
 
 }
