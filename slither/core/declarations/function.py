@@ -563,9 +563,9 @@ class Function(ChildContract, SourceMapping):
 
     def get_assginment(self):
         result = []
-        for n in self.nodes:
-            if n.expression.type == AssignmentOperationType.ASSIGN:
-                result = result + n.expression.expression_left()
+        for e in self.expressions:
+            if e.type == AssignmentOperationType.ASSIGN:
+                result = result + e.expression_left()
 
         return result
 
