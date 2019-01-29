@@ -13,6 +13,7 @@ from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.unary_operation import UnaryOperation
 from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.expressions.assignment_operation import AssignmentOperationType
 from slither.core.variables.state_variable import StateVariable
 
 logger = logging.getLogger("Function")
@@ -563,8 +564,8 @@ class Function(ChildContract, SourceMapping):
     def get_assginment(self):
         result = []
         for n in self.nodes:
-            if n.is_assignment():
-                result = result + n.get_assignment()
+            if n.expression.type == AssignmentOperationType.ASSIGN:
+                result = result + n.expression.expression_left()
 
         return result
 
