@@ -57,7 +57,7 @@ class FunctionAuth(AbstractDetector):
                 #clas.log(right)
                 left = split_result[0].replace(" ","").replace("\t","")
                 #clas.log(left)
-                if left in intersection and right in ["msg.sender", "tx.origin"]:
+                if left in intersection and right in ["msg.sender", "tx.origin"] + func.parameters:
                     return True
 
         return False
