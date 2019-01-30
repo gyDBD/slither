@@ -48,9 +48,6 @@ class FunctionAuth(AbstractDetector):
         state_variables_written = [v.name for v in func.all_state_variables_written()]
         conditional_state_variables_read = [v.name for v in func.all_conditional_state_variables_read()]
         intersection = list(set(state_variables_written)&set(conditional_state_variables_read))
-        kk = func.parameters
-        for l in kk:
-            clas.log(str(l))
         if intersection:
             assignment = func.get_assginment()
             assignments = assignment.split("\n")
@@ -60,7 +57,7 @@ class FunctionAuth(AbstractDetector):
                 #clas.log(right)
                 left = split_result[0].replace(" ","").replace("\t","")
                 #clas.log(left)
-                if left in intersection and right in ["msg.sender", "tx.origin"] + func.parameters:
+                if left in intersection and right in ["msg.sender", "tx.origin"] + [str(n) for n in func.parameters] :
                     return True
 
         return False
