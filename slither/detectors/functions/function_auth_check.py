@@ -57,6 +57,7 @@ class FunctionAuth(AbstractDetector):
             assignment = func.get_assginment()
             assignments = assignment.split("\n")
             for assign in assignments:
+                clas.log(assign)
                 split_result = assign.split("=")
                 right = split_result[len(split_result) - 1].replace(" ","").replace("\t","")
                 clas.log(right)
