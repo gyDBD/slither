@@ -4,6 +4,7 @@ Module detecting initialize function
 A initialization function is an unprotected function that does not check the caller(msg.sender)
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations.function import Function
 class FunctionAuth(AbstractDetector):
     """
     Unprotected function detector
@@ -28,10 +29,11 @@ class FunctionAuth(AbstractDetector):
         if func.visibility in ["public", "external"]:
             return True
         elif func.visibility in ["private", "internal"]:
-            for f in func.internal_calls:
-                clas.log(f.name)
-                if f.visibility in ["public", "external"]:
-                    return True
+            for f in contract.functions:
+                for internal in f.internal_calls:
+                    clas.log(internal.name)
+                    if internal.name == func.name and f.visibility in ["public", "external"]:
+                        return True
 
         return False
 
