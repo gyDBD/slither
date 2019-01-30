@@ -11,7 +11,6 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
-from slither.core.expressions.assignment_operation import AssignmentOperationType
 from slither.slithir.convert import convert_expression
 
 from slither.slithir.operations import (Balance, HighLevelCall, Index,
@@ -414,29 +413,6 @@ class Node(SourceMapping, ChildFunction):
             bool: True if the node is a conditional node
         """
         return self.contains_if(include_loop) or self.contains_require_or_assert()
-
-    def is_assignment(self):
-        """
-            Check if the node is a assignment node
-        Returns:
-            bool: True if the node is a assignment node contains "="
-        """
-        if self.type == NodeType.EXPRESSION:
-            if "=" in self.expression.type:
-                return True
-
-        return False
-
-    def get_assignment(self):
-        """
-            Check if the node is a assignment node
-        Returns:
-            bool: True if the node is a assignment node contains "="
-        """
-        if self.is_assignment():
-            return self.expression
-
-        return None
 
     def add_father(self, father):
         """ Add a father node
