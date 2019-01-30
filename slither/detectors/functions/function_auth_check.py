@@ -77,6 +77,7 @@ class FunctionAuth(AbstractDetector):
             for f in contract.functions:
                 if f.is_constructor or not self.detect_func_visibile(f, contract) :
                     continue
+                self.log("sssssssss")
                 if f.is_implemented and self.detect_set_sensitive_func(f,self) and not f.is_protected():
                     # Info to be printed
                     info = 'Setting sensitive state variables function without checking the auth found in {}.{} ({})\n'
