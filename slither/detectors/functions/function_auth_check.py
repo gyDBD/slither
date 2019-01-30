@@ -17,7 +17,7 @@ class FunctionAuth(AbstractDetector):
     WIKI = 'https://github.com/trailofbits/slither/wiki'
 
     @staticmethod
-    def detect_func_visibile(func, contract,clas):
+    def detect_func_visibile(func, contract):
         """ Detect if the function is visible
         1. public or external, which means that it can be invoked directly from outside;
         2. private or internal but are invoked / reachable from some public or external functions (entrance).
@@ -31,7 +31,6 @@ class FunctionAuth(AbstractDetector):
         elif func.visibility in ["private", "internal"]:
             for f in contract.functions:
                 for internal in f.internal_calls:
-                    clas.log(internal.name)
                     if internal.name == func.name and f.visibility in ["public", "external"]:
                         return True
 
@@ -58,7 +57,6 @@ class FunctionAuth(AbstractDetector):
             assignment = func.get_assginment()
             assignments = assignment.split("\n")
             for assign in assignments:
-                clas.log(assign)
                 split_result = assign.split("=")
                 right = split_result[len(split_result) - 1].replace(" ","").replace("\t","")
                 #clas.log(right)
@@ -77,7 +75,7 @@ class FunctionAuth(AbstractDetector):
         for contract in self.contracts:
             # Check if a function set sensitive state variables and not check the auth
             for f in contract.functions:
-                if f.is_constructor or not self.detect_func_visibile(f, contract,self) :
+                if f.is_constructor or not self.detect_func_visibile(f, contract) :
                     continue
                 if f.is_implemented and self.detect_set_sensitive_func(f,self) and not f.is_protected():
                     # Info to be printed
