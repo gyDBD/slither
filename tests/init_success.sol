@@ -33,8 +33,8 @@ contract C{
   }
 
   function i_am_a_Initialize(bool parameter) public {
-    turn();
-    owner = msg.sender;
+
+    aa = parameter;
   }
 
 }
