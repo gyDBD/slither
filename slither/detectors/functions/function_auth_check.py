@@ -50,7 +50,7 @@ class FunctionAuth(AbstractDetector):
         intersection = list(set(state_variables_written)&set(conditional_state_variables_read))
         kk = func.parameters
         for l in kk:
-            clas.log(l)
+            clas.log(str(l))
         if intersection:
             assignment = func.get_assginment()
             assignments = assignment.split("\n")
