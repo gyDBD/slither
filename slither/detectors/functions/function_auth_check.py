@@ -50,7 +50,8 @@ class FunctionAuth(AbstractDetector):
         intersection = list(set(state_variables_written)&set(conditional_state_variables_read))
         if intersection:
             assignment = func.get_assginment()
-            for assign in assignment:
+            assignments = assignment.split("\n")
+            for assign in assignments:
                 split_result = assign.split("=")
                 right = split_result[len(split_result) - 1]
                 left = split_result[0]

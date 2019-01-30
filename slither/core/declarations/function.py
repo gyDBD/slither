@@ -563,11 +563,11 @@ class Function(ChildContract, SourceMapping):
         return self._explore_functions(lambda x: _explore_func(x, _solidity_variable_in_node))
 
     def get_assginment(self):
-        result = []
+        result = " "
         for e in self.expressions:
             if isinstance(e, AssignmentOperation):
                 if e.type == AssignmentOperationType.ASSIGN:
-                    result = result + str(e.expression_left)
+                    result = result + str(e.expression_left) + "=" + str(e.self.expression_right) + "\n"
 
         return result
 
