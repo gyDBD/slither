@@ -28,8 +28,8 @@ class FunctionAuth(AbstractDetector):
         if func.visibility in ["public", "external"]:
             return True
         elif func.visibility in ["private", "internal"]:
-            for f in func.high_level_calls:
-                clas.log(f.name)
+            for f in func.external_calls_as_expressions:
+                clas.log(str(f))
                 if f.visibility in ["public", "external"]:
                     return True
 
