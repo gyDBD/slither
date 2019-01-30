@@ -567,7 +567,7 @@ class Function(ChildContract, SourceMapping):
         for e in self.expressions:
             if isinstance(e, AssignmentOperation):
                 if e.type == AssignmentOperationType.ASSIGN:
-                    result = result + e.expressions[0]
+                    result = result + str(e.expression_left)
 
         return result
 
