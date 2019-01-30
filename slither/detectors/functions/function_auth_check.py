@@ -54,10 +54,11 @@ class FunctionAuth(AbstractDetector):
             for assign in assignments:
                 split_result = assign.split("=")
                 right = split_result[len(split_result) - 1].replace(" ","").replace("\t","")
-                #clas.log(right)
+                clas.log(right)
                 left = split_result[0].replace(" ","").replace("\t","")
-                #clas.log(left)
+                clas.log(left)
                 if left in intersection and right in ["msg.sender", "tx.origin"] + [str(n) for n in func.parameters] :
+                    clas.log("fffffffff")
                     return True
 
         return False
