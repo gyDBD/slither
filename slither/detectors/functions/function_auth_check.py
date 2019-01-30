@@ -24,11 +24,14 @@ class FunctionAuth(AbstractDetector):
         Returns:
             (bool): True if the function is visible
         """
-        # functions_reachable = contract.all_functions_called()
+        functions_reachable = contract.all_functions_called()
         if func.visibility in ["public", "external"]:
             return True
-        # elif func.visibility in ["private", "internal"] and func in functions_reachable:
-        #     return True
+        elif func.visibility in ["private", "internal"]:
+            for f in func.high_level_calls:
+                if f.visibility in ["public", "external"]:
+                    return True
+
         return False
 
     @staticmethod
@@ -48,22 +51,19 @@ class FunctionAuth(AbstractDetector):
         state_variables_written = [v.name for v in func.all_state_variables_written()]
         conditional_state_variables_read = [v.name for v in func.all_conditional_state_variables_read()]
         intersection = list(set(state_variables_written)&set(conditional_state_variables_read))
-        for i in intersection:
-            clas.log(i)
+        # for i in intersection:
+        #     clas.log(i)
         if intersection:
             assignment = func.get_assginment()
             assignments = assignment.split("\n")
             for assign in assignments:
                 split_result = assign.split("=")
                 right = split_result[len(split_result) - 1].replace(" ","").replace("\t","")
-                clas.log(right)
+                #clas.log(right)
                 left = split_result[0].replace(" ","").replace("\t","")
-                clas.log(left)
+                #clas.log(left)
                 if left in intersection and right in ["msg.sender", "tx.origin"] + [str(n) for n in func.parameters] :
-                    clas.log("fffffffff")
                     return True
-        else:
-            clas.log("ddddddddddd")
 
         return False
 

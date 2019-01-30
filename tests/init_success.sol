@@ -31,8 +31,11 @@ contract C{
   function turn() internal view {
     require(msg.sender == owner);
   }
+  function out() public {
+    i_am_a_Initialize(true);
+  }
 
-  function i_am_a_Initialize(bool parameter) public {
+  function i_am_a_Initialize(bool parameter) private {
     if (!aa) {
       revert();
     }
