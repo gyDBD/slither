@@ -30,11 +30,11 @@ class FunctionAuth(AbstractDetector):
             return True
         #2. find all functions in contract and check whether there is a internal call in that function
         #which name is equals to func.name and that function is public or external
-        elif func.visibility in ["private", "internal"]:
-            for f in contract.functions:
-                for internal in f.internal_calls:
-                    if internal.name == func.name and f.visibility in ["public", "external"]:
-                        return True
+        # elif func.visibility in ["private", "internal"]:
+        #     for f in contract.functions:
+        #         for internal in f.internal_calls:
+        #             if internal.name == func.name and f.visibility in ["public", "external"]:
+        #                 return True
 
         return False
 
