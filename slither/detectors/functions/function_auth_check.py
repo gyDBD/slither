@@ -32,7 +32,7 @@ class FunctionAuth(AbstractDetector):
         return False
 
     @staticmethod
-    def detect_set_sensitive_func(func):
+    def detect_set_sensitive_func(func, clas):
         """ Detect if the function includes setting sensitive state variables
         which are the ones that are either checked by some requirement statements or appear in some modifier definitions
 
@@ -54,7 +54,9 @@ class FunctionAuth(AbstractDetector):
             for assign in assignments:
                 split_result = assign.split("=")
                 right = split_result[len(split_result) - 1]
+                clas.log(right)
                 left = split_result[0]
+                clas.log(left)
                 if left in intersection and right in ["msg.sender", "tx.origin"] + func.parameters():
                     return True
 
@@ -70,7 +72,7 @@ class FunctionAuth(AbstractDetector):
             for f in contract.functions:
                 if f.is_constructor or not self.detect_func_visibile(f, contract) :
                     continue
-                if f.is_implemented and self.detect_set_sensitive_func(f):
+                if f.is_implemented and self.detect_set_sensitive_func(f, self):
                     self.log("fsdfasdfasdf")
                     # Info to be printed
                     info = 'Setting sensitive state variables function without checking the auth found in {}.{} ({})\n'
@@ -81,7 +83,5 @@ class FunctionAuth(AbstractDetector):
                     json = self.generate_json_result(info)
                     self.add_function_to_json(f, json)
                     results.append(json)
-                else :
-                    self.log("fffffffff")
 
         return results
