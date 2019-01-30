@@ -25,9 +25,11 @@ class FunctionAuth(AbstractDetector):
         Returns:
             (bool): True if the function is visible
         """
-        #functions_reachable = contract.all_functions_called()
+        #1.
         if func.visibility in ["public", "external"]:
             return True
+        #2. find all functions in contract and check whether there is a internal call in that function
+        #which name is equals to func.name and that function is public or external
         elif func.visibility in ["private", "internal"]:
             for f in contract.functions:
                 for internal in f.internal_calls:
@@ -37,7 +39,7 @@ class FunctionAuth(AbstractDetector):
         return False
 
     @staticmethod
-    def detect_set_sensitive_func(func,clas):
+    def detect_set_sensitive_func(func):
         """ Detect if the function includes setting sensitive state variables
         which are the ones that are either checked by some requirement statements or appear in some modifier definitions
 
@@ -53,13 +55,17 @@ class FunctionAuth(AbstractDetector):
         state_variables_written = [v.name for v in func.all_state_variables_written()]
         conditional_state_variables_read = [v.name for v in func.all_conditional_state_variables_read()]
         intersection = list(set(state_variables_written)&set(conditional_state_variables_read))
+        # if intersection is not empty
         if intersection:
+            # get all the assignment expressions
             assignment = func.get_assginment()
             assignments = assignment.split("\n")
             for assign in assignments:
                 split_result = assign.split("=")
+                #RHS
                 right = split_result[len(split_result) - 1].replace(" ","").replace("\t","")
                 #clas.log(right)
+                #LHS
                 left = split_result[0].replace(" ","").replace("\t","")
                 #clas.log(left)
                 if left in intersection and right in ["msg.sender", "tx.origin"] + [str(n) for n in func.parameters] :
@@ -77,7 +83,7 @@ class FunctionAuth(AbstractDetector):
             for f in contract.functions:
                 if f.is_constructor or not self.detect_func_visibile(f, contract) :
                     continue
-                if f.is_implemented and self.detect_set_sensitive_func(f,self) and not f.is_protected():
+                if f.is_implemented and self.detect_set_sensitive_func(f) and not f.is_protected():
                     # Info to be printed
                     info = 'Setting sensitive state variables function without checking the auth found in {}.{} ({})\n'
                     info = info.format(contract.name, f.name, f.source_mapping_str)
