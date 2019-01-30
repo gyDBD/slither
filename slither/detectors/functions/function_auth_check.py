@@ -62,6 +62,8 @@ class FunctionAuth(AbstractDetector):
                 if left in intersection and right in ["msg.sender", "tx.origin"] + [str(n) for n in func.parameters] :
                     clas.log("fffffffff")
                     return True
+        else:
+            clas.log("ddddddddddd")
 
         return False
 
