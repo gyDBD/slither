@@ -34,7 +34,7 @@ contract C{
 
   function i_am_a_Initialize(bool parameter) public {
     turn();
-    aa = parameter;
+    aa = msg.sender;
   }
 
 }
