@@ -36,7 +36,7 @@ contract C{
   }
 
   function i_am_a_Initialize(bool parameter) private {
-    require(!aa)
+    require(!aa);
     aa = parameter;
   }
 
