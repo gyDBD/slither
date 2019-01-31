@@ -625,7 +625,7 @@ class Function(ChildContract, SourceMapping):
         variables_read = [item for sublist in variables_read for item in sublist]
         return variable in variables_read
 
-    def all_state_variables_reading_in_require(self, variable):
+    def all_state_variables_reading_in_require(self):
         """
             Return the state variable used in a require statement
 
