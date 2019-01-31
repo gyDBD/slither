@@ -53,7 +53,7 @@ class FunctionAuth(AbstractDetector):
         # conditional_vars = func.all_conditional_solidity_variables_read(include_loop=False)
         # args_vars = func.all_solidity_variables_used_as_args()
         state_variables_written = [v.name for v in func.all_state_variables_written()]
-        conditional_state_variables_read = [v.name for v in func.all_conditional_state_variables_read()]
+        conditional_state_variables_read = [v.name for v in func.all_state_variables_reading_in_require()]
         intersection = list(set(state_variables_written)&set(conditional_state_variables_read))
         # if intersection is not empty
         if intersection:
