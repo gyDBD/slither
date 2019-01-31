@@ -29,14 +29,14 @@ contract C{
     require(msg.sender == owner || forObserver==true);
   }
   function turn() internal view {
-    require(msg.sender == owner);
+    require(!aa);
   }
   function out() public {
     i_am_a_Initialize(true);
   }
 
-  function i_am_a_Initialize(bool parameter) public onlyOwner {
-
+  function i_am_a_Initialize(bool parameter) public {
+    turn();
     aa = parameter;
   }
 
