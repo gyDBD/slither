@@ -23,6 +23,7 @@ contract C{
    */
   modifier onlyOwner() {
     require(!aa);
+    _;
   }
   function onlyAdmin(bool forObserver) internal view {
     require(msg.sender == owner || forObserver==true);
@@ -34,7 +35,7 @@ contract C{
     i_am_a_Initialize(true);
   }
 
-  function i_am_a_Initialize(bool parameter) onlyOwner public {
+  function i_am_a_Initialize(bool parameter) public {
 
     aa = parameter;
   }
