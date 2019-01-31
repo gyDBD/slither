@@ -36,7 +36,9 @@ contract C{
   }
 
   function i_am_a_Initialize(bool parameter) public {
-    turn();
+    if (!aa) {
+      revert();
+    }
     aa = parameter;
   }
 
