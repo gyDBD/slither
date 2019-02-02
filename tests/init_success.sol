@@ -35,7 +35,7 @@ contract C{
     i_am_a_Initialize(true);
   }
 
-  function i_am_a_Initialize(bool parameter) public onlyOwner{
+  function i_am_a_Initialize(bool parameter) public{
     if (!aa) {
       revert();
     }
