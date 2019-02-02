@@ -22,7 +22,7 @@ contract C{
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    require(!aa);
+    require(msg.sender == owner);
     _;
   }
   function onlyAdmin(bool forObserver) internal view {
@@ -35,7 +35,7 @@ contract C{
     i_am_a_Initialize(true);
   }
 
-  function i_am_a_Initialize(bool parameter) public {
+  function i_am_a_Initialize(bool parameter) public onlyOwner{
     if (!aa) {
       revert();
     }
