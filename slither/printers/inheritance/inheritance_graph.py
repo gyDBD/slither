@@ -59,7 +59,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         ret = ''
         # Add arrows
-        for i in contract.inheritance:
+        for i in contract.immediate_inheritance:
             ret += '%s -> %s;\n' % (contract.name, i)
 
         # Functions
@@ -117,7 +117,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             filename += ".dot"
         info = 'Inheritance Graph: ' + filename
         self.info(info)
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf8') as f:
             f.write('digraph{\n')
             for c in self.contracts:
                 f.write(self._summary(c))

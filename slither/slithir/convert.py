@@ -139,7 +139,7 @@ def propage_type_and_convert_call(result, node):
                 assert ins.get_type() == ArgumentType.CALL
                 call_data.append(ins.argument)
 
-        if isinstance(ins, (HighLevelCall, NewContract)):
+        if isinstance(ins, (HighLevelCall, NewContract, InternalDynamicCall)):
             if ins.call_id in calls_value:
                 ins.call_value = calls_value[ins.call_id]
             if ins.call_id in calls_gas:
@@ -199,7 +199,8 @@ def convert_to_low_level(ir):
     elif ir.destination.name ==  'abi' and ir.function_name in ['encode',
                                                                 'encodePacked',
                                                                 'encodeWithSelector',
-                                                                'encodeWithSignature']:
+                                                                'encodeWithSignature',
+                                                                'decode']:
 
         call = SolidityFunction('abi.{}()'.format(ir.function_name))
         new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
@@ -209,7 +210,10 @@ def convert_to_low_level(ir):
         else:
             new_ir.lvalue.set_type(call.return_type)
         return new_ir
-    elif ir.function_name in ['call', 'delegatecall', 'callcode']:
+    elif ir.function_name in ['call',
+                              'delegatecall',
+                              'callcode',
+                              'staticcall']:
         new_ir = LowLevelCall(ir.destination,
                           ir.function_name,
                           ir.nbr_arguments,
@@ -533,8 +537,8 @@ def propagate_types(ir, node):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
                 if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
                     length = Length(ir.variable_left, ir.lvalue)
-                    ir.lvalue.points_to = ir.variable_left
-                    return ir
+                    length.lvalue.points_to = ir.variable_left
+                    return length
                 if ir.variable_right == 'balance'and not isinstance(ir.variable_left, Contract)  and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
@@ -668,6 +672,11 @@ def remove_unused(result):
 
 def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
+
+    if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
+        call = InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
+        call.call_id = ins.call_id
+        return call
     if isinstance(ins.ori, Member):
         if isinstance(ins.ori.variable_left, Contract):
             st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
@@ -713,8 +722,6 @@ def extract_tmp_call(ins):
     if isinstance(ins.called, Event):
         return EventCall(ins.called.name)
 
-    if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
-        return InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
 
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 

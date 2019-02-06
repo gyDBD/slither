@@ -16,7 +16,8 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils.colors import red
-from slither.utils.command_line import output_to_markdown, output_detectors, output_printers, output_detectors_json
+from slither.utils.command_line import output_to_markdown, output_detectors, output_printers, output_detectors_json, output_wiki
+from slither.utils.colors import set_colorization_enabled
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -33,9 +34,9 @@ def process(filename, args, detector_classes, printer_classes):
     Returns:
         list(result), int: Result list and number of contracts analyzed
     """
-    ast = '--ast-json'
-    if args.compact_ast:
-        ast = '--ast-compact-json'
+    ast = '--ast-compact-json'
+    if args.legacy_ast:
+        ast = '--ast-json'
     slither = Slither(filename, args.solc, args.disable_solc_warnings, args.solc_args, ast)
 
     return _process(slither, detector_classes, printer_classes)
@@ -63,8 +64,17 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
-    cmd =  ['npx',args.truffle_version,'compile'] if args.truffle_version else ['truffle','compile']
-    logger.info('truffle compile running...')
+    if args.truffle_version:
+        cmd = ['npx',args.truffle_version,'compile']
+    elif os.path.isfile('package.json'):
+        cmd = ['truffle', 'compile']
+        with open('package.json') as f:
+                package = json.load(f)
+                if 'devDependencies' in package:
+                    if 'truffle' in package['devDependencies']:
+                        truffle_version = 'truffle@{}'.format(package['devDependencies']['truffle'])
+                        cmd = ['npx', truffle_version,'compile']
+    logger.info("'{}' running (use --truffle-version truffle@x.x.x to use specific version)".format(' '.join(cmd)))
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     stdout, stderr = process.communicate()
@@ -75,29 +85,27 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
     if stderr:
         logger.error(stderr)
 
-    if not os.path.isdir(os.path.join(dirname, 'build'))\
-        or not os.path.isdir(os.path.join(dirname, 'build', 'contracts')):
-        logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
-        return ([], 0)
+    slither = Slither(dirname,
+                      args.solc,
+                      args.disable_solc_warnings,
+                      args.solc_args,
+                      is_truffle=True)
+    return _process(slither, detector_classes, printer_classes)
 
-    filenames = glob.glob(os.path.join(dirname, 'build', 'contracts', '*.json'))
-
-    return process_files(filenames, args, detector_classes, printer_classes)
 
 def process_files(filenames, args, detector_classes, printer_classes):
     all_contracts = []
 
     for filename in filenames:
-        with open(filename) as f:
+        with open(filename, encoding='utf8') as f:
             contract_loaded = json.load(f)
             all_contracts.append(contract_loaded['ast'])
 
     slither = Slither(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
     return _process(slither, detector_classes, printer_classes)
 
-
 def output_json(results, filename):
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding='utf8') as f:
         json.dump(results, f)
 
 
@@ -116,7 +124,7 @@ def get_detectors_and_printers():
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.uninitialized_local_variables import UninitializedLocalVars
     from slither.detectors.attributes.constant_pragma import ConstantPragma
-    from slither.detectors.attributes.old_solc import OldSolc
+    from slither.detectors.attributes.incorrect_solc import IncorrectSolc
     from slither.detectors.attributes.locked_ether import LockedEther
     from slither.detectors.functions.arbitrary_send import ArbitrarySend
     from slither.detectors.functions.suicidal import Suicidal
@@ -139,16 +147,18 @@ def get_detectors_and_printers():
     from slither.detectors.attributes.const_functions import ConstantFunctions
     from slither.detectors.shadowing.abstract import ShadowingAbstractDetection
     from slither.detectors.shadowing.state import StateShadowing
+    from slither.detectors.shadowing.local import LocalShadowing
+    from slither.detectors.shadowing.builtin_symbols import BuiltinSymbolShadowing
     from slither.detectors.operations.block_timestamp import Timestamp
     from slither.detectors.statements.calls_in_loop import MultipleCallsInLoop
-
+    from slither.detectors.statements.incorrect_strict_equality import IncorrectStrictEquality
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
                  UninitializedStorageVars,
                  UninitializedLocalVars,
                  ConstantPragma,
-                 OldSolc,
+                 IncorrectSolc,
                  ReentrancyBenign,
                  ReentrancyReadBeforeWritten,
                  ReentrancyEth,
@@ -172,7 +182,10 @@ def get_detectors_and_printers():
                  ShadowingAbstractDetection,
                  StateShadowing,
                  Timestamp,
-                 MultipleCallsInLoop]
+                 MultipleCallsInLoop,
+                 IncorrectStrictEquality,
+                 LocalShadowing,
+                 BuiltinSymbolShadowing]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
@@ -184,7 +197,8 @@ def get_detectors_and_printers():
     from slither.printers.summary.slithir_ssa import PrinterSlithIRSSA
     from slither.printers.summary.human_summary import PrinterHumanSummary
     from slither.printers.functions.cfg import CFG
-
+    from slither.printers.summary.function_ids import FunctionIds
+    from slither.printers.summary.variables_order import VariablesOrder
     printers = [FunctionSummary,
                 ContractSummary,
                 PrinterInheritance,
@@ -194,7 +208,9 @@ def get_detectors_and_printers():
                 PrinterSlithIR,
                 PrinterSlithIRSSA,
                 PrinterHumanSummary,
-                CFG]
+                CFG,
+                FunctionIds,
+                VariablesOrder]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):
@@ -226,6 +242,9 @@ def main_impl(all_detector_classes, all_printer_classes):
     :param all_printer_classes: A list of all printers that can be included.
     """
     args = parse_args(all_detector_classes, all_printer_classes)
+
+    # Set colorization option
+    set_colorization_enabled(not args.disable_color)
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
@@ -283,6 +302,8 @@ def main_impl(all_detector_classes, all_printer_classes):
         if args.json:
             output_json(results, args.json)
         # Dont print the number of result for printers
+        if number_contracts == 0:
+            logger.warn(red('No contract was analyzed'))
         if printer_classes:
             logger.info('%s analyzed (%d contracts)', filename, number_contracts)
         else:
@@ -396,6 +417,10 @@ def parse_args(detector_classes, printer_classes):
                             help='Use a local Truffle version (with npx)',
                             action='store',
                             default=False)
+    group_misc.add_argument('--disable-color',
+                            help='Disable output colorization',
+                            action='store_true',
+                            default=False)
 
 
 
@@ -410,13 +435,18 @@ def parse_args(detector_classes, printer_classes):
                         action=OutputMarkdown,
                         default=False)
 
+    parser.add_argument('--wiki-detectors',
+                        help=argparse.SUPPRESS,
+                        action=OutputWiki,
+                        default=False)
+
     parser.add_argument('--list-detectors-json',
                         help=argparse.SUPPRESS,
                         action=ListDetectorsJson,
                         nargs=0,
                         default=False)
 
-    parser.add_argument('--compact-ast',
+    parser.add_argument('--legacy-ast',
                         help=argparse.SUPPRESS,
                         action='store_true',
                         default=False)
@@ -459,7 +489,11 @@ class OutputMarkdown(argparse.Action):
         output_to_markdown(detectors, printers, values)
         parser.exit()
 
-
+class OutputWiki(argparse.Action):
+    def __call__(self, parser, args, values, option_string=None):
+        detectors, _ = get_detectors_and_printers()
+        output_wiki(detectors, values)
+        parser.exit()
 
 def choose_detectors(args, all_detector_classes):
     # If detectors are specified, run only these ones
